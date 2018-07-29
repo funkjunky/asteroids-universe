@@ -1,6 +1,4 @@
-const MAX_ACC = 150;
-
-export default (state, { type, id, accx, accy, rotation }) => {
+export default (state, { type, id, accx = 0, accy = 0, rotation }) => {
     switch(type) {
         case 'FACE':
             if (id !== state.id) return state;
@@ -9,12 +7,12 @@ export default (state, { type, id, accx, accy, rotation }) => {
                 rotation,
             };
 
-        case 'MOVE':
+        case 'ADD_ACC':
             if (id !== state.id) return state;
             return {
                 ...state,
-                accx: accx * MAX_ACC,
-                accy: accy * MAX_ACC,
+                accx: accx || state.accx,
+                accy: accy || state.accy,
             };
 
         default:

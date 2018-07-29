@@ -6,14 +6,33 @@ const reducers = { asteroid, ship };
 export default (state, action) => {
     switch(action.type) {
         case 'UPDATE_PHYSICS':
-            const velx = (state.accx || 0) * action.dt + state.velx;
-            const vely = (state.accy || 0) * action.dt + state.vely;
+            const pps = action.dt / 1000;
 
-            let x = state.velx * action.dt + state.x;
+            let velx = state.accx * pps + state.velx;
+            let vely = state.accy * pps + state.vely;
+
+            const magnitude = Math.sqrt(velx*velx + vely*vely);
+            if (magnitude > 300) {
+                velx = (velx / magnitude) * 300;
+                vely = (vely / magnitude) * 300;
+            }
+
+            // apply friction to the velocity
+            if (state.friction) {
+                    velx = (velx > 0
+                            ? (velx - state.friction * pps)
+                            : (velx + state.friction * pps));
+
+                    vely = (vely > 0
+                            ? (vely - state.friction * pps)
+                            : (vely + state.friction * pps));
+            }
+
+            let x = state.velx * pps + state.x;
             if (x < 0) x = 640 - x;
             else if (x > 640) x = x - 640;
 
-            let y = state.vely * action.dt + state.y;
+            let y = state.vely * pps + state.y;
             if (y < 0) y = 480 - y;
             else if (y > 480) y = y - 480;
 

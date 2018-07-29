@@ -26,8 +26,8 @@ export default (state={}, action) => {
                     y: 0,
                     velx: 0,
                     vely: 0,
-                    // accx: 0, optional
-                    // accy: 0, optional
+                    accx: 0,
+                    accy: 0,
                     rotation: 0,
                     // rotationVel: 0, optional
                     ...action.entity,

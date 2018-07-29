@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         x: 100,
         y: 100,
         scale: 5,
+        friction: 100,
     }));
 
     const randomInt = max => Math.floor(Math.random() * max);
@@ -73,8 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
         shape: getAsteroidShape(),
         x: 30 + Math.random() * (640 - 30),    // - scale * normal TODO const
         y: 30 + Math.random() * (480 - 30),
-        velx: Math.random() * 0.1 - 0.05,
-        vely: Math.random() * 0.1 - 0.05,
+        velx: Math.random() * 50 - 25,
+        vely: Math.random() * 50 - 25,
         scale: 5,
         rotationVel: 0.001 * Math.random() + 0.001,
     });
@@ -84,6 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
         yield put({
             type: 'UPDATE_PHYSICS',
             dt
+        });
+        store.dispatch({
+            type: 'DEBUG',
+            line: store.getState().entities[0].accx + ' > ' + store.getState().entities[0].velx,
         });
 
         // Never done?
@@ -115,33 +120,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const rotation = getRadiansFromVector(x, y);
 
         store.dispatch({
-            type: 'DEBUG',
-            line: x + ', ' + y + ' = ' + rotation,
-        });
-        store.dispatch({
             type: 'FACE',
             id: 0,
             rotation,
         });
     });
-    /*
-    document.addEventListener('keyup', e => {
-        e.preventDefault();
-        if(e.keyCode === 13) {
-            console.log('fireball launched');
-            store.dispatch(fireball(me, enemy));
-        } else if(e.keyCode === 32) {
-            store.dispatch(jump(me));
-        }
-    });
 
-    const timeoutFireballEnemy = () => {
-        if(me().hp < 0 || enemy().hp < 0) return;
+    let keysPressed = {};
+    let dispatchAddAcc = () => {
+        let accx = 0.001;
+        let accy = 0.001;
+        if (keysPressed[37] && !keysPressed[39]) accx = -700;
+        else if (!keysPressed[37] && keysPressed[39]) accx = 700;
 
-        console.log('enemy started fireball');
-        store.dispatch(fireball(enemy, me));
-        setTimeout(timeoutFireballEnemy, 1000 + Math.random() * 5000);
+        if (keysPressed[38] && !keysPressed[40]) accy = -700;
+        else if (!keysPressed[38] && keysPressed[40]) accy = 700;
+
+        store.dispatch({ type: 'ADD_ACC', id: 0, accx, accy });
     };
-    timeoutFireballEnemy()
-    */
+    // First store the key change, then update ADD_ACC accordingly.
+    document.addEventListener('keydown', e => dispatchAddAcc(keysPressed[e.keyCode] = true));
+    document.addEventListener('keyup', e => dispatchAddAcc(keysPressed[e.keyCode] = false));
 });
