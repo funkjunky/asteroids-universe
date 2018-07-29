@@ -1,0 +1,39 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 TODO (Commit often!)\
+\'97\'97\'97\'97\
+\
+- Make asteroids game\
+	*- strip most of the code and keep bits and peices\
+	*- Create function for creating the starting shape of an asteroid\
+	*- draw entity\
+	*- ensure drawing works.\
+	*- Create a tick for rotating the asteroid\
+	*- auto-spawn asteroids, if there are less than 10.\
+	*- Create the ship [polygon with a hole for where the bullets come out]\
+	*- wandering asteroids, velx vely\
+	*- Allow the ship rotation to work by following the cursor, relative to the position of the ship\
+	- Get mvoement of ship working.\
+	- Allow spawning bullets via left click\
+		- via generators! yield create, yield till 1 second passes, then destroy it\
+	- Add collision of bullets to asteroids, removing the asteroids\
+	- Add collision of asteroid to ship, respawn action\
+		- increase death count\
+		- remove control and zero opacity\
+		- slowly increase opacity, till 80%\
+		- give back control and make player invincible for 1 second, but unable to shoot.\
+		- go back to full control and vulnerability.\
+\
+- Add-in Firebase authentication\
+	- yarn add firebase\
+	- import firebase/app\
+\
+- Create multiplayer part of game. Every movement updates in the database.\
+\
+- Spice up the game somehow, Like gemoetry wars, but massively multiplayer!\
+	- add discovery. Not PvP, but add coop challenges when there are enough players. Like bosses.}
