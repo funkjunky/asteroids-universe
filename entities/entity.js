@@ -41,6 +41,10 @@ export default (state, action) => {
             return { ...state, velx, vely, x, y, rotation };
 
         default:
-            return reducers[state.entityType](state, action);
+            if (reducers[state.entityType]) {
+                return reducers[state.entityType](state, action);
+            } else {
+                return state;
+            }
     }
 }

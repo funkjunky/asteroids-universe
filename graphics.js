@@ -9,16 +9,29 @@ const c = {
 
 export default (ctx, state, dt) => {
     const drawEntity = entity => {
-        ctx.strokeStyle = c.purple;
-        ctx.lineWidth = 2;
         ctx.translate(entity.x, entity.y);
 
         ctx.strokeStyle = c.blue;
         ctx.fillStyle = c.blue;
         ctx.textAlign = 'center';
-        ctx.fillText(entity.name, 0, entity.scale * 10);   //6 is the bounds of a shape. TODO: make 6 const
+        if (entity.name) {
+            ctx.fillText(entity.name, 0, entity.scale * 10);   //6 is the bounds of a shape. TODO: make 6 const
+        }
 
         ctx.rotate(entity.rotation);
+        if (entity.id === 0) {
+            ctx.strokeStyle = c.red;
+            ctx.fillStyle = c.red;
+            if (state.game.deathCount) {
+                ctx.fillText('☠' + state.game.deathCount, -10, 10);
+            }
+            if (state.game.killCount) {
+                ctx.fillText('👾'+ state.game.killCount, 10, 10);
+            }
+        }
+
+        ctx.strokeStyle = entity.invuln ? c.orange : c.purple;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         const getX = x => x * entity.scale;
         const getY = y => y * entity.scale;

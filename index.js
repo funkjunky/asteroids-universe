@@ -3,10 +3,13 @@ import { createYieldEffectMiddleware } from 'redux-yield-effect';
 import { put } from 'redux-yield-effect/lib/effects';
 import { addTick } from 'effect-tick';
 import { tickMiddleware, resumeTicks, pauseTicks } from 'effect-tick';
-import { createEntity } from './entities/index.js';
-import reducer from './reducer.js';
+import { createEntity, removeEntity } from './entities/index';
+import reducer from './reducer';
 import metaSelector from 'redux-meta-selector';
-import graphics from './graphics.js';
+import graphics from './graphics';
+import createPlayer from './createPlayer';
+import createAsteroid from './createAsteroid';
+import controls from './controls';
 import 'end-polyFills';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -28,57 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     window.requestAnimationFrame(step);
 
-    const shipShape = [
-        [-2, 0],
-        [2, 0],
-        [2, -6],
-        [6, -2],
-        [6, 2],
-        [2, 6],
-        [-2, 6],
-        [-6, 2],
-        [-6, -2],
-        [-2, -6],
-        [-2, 0],
-    ];
-
-    const player = store.dispatch(createEntity({
-        id: 0,
-        name: 'jason',
-        shape: shipShape,
-        entityType: 'ship',
-        x: 100,
-        y: 100,
-        scale: 5,
-        friction: 100,
-    }));
-
-    const randomInt = max => Math.floor(Math.random() * max);
-    // * * *
-    // *   *
-    // * * *
-    const getAsteroidShape = () => [
-        [ randomInt(4) - 6, randomInt(4) - 6 ],
-        [ randomInt(4) - 2, randomInt(4) - 6 ],
-        [ randomInt(4) + 2, randomInt(4) - 6 ],
-        [ randomInt(4) + 2, randomInt(4) - 2 ],
-        [ randomInt(4) + 2, randomInt(4) + 2 ],
-        [ randomInt(4) - 2, randomInt(4) + 2 ],
-        [ randomInt(4) - 6, randomInt(4) + 2 ],
-        [ randomInt(4) - 6, randomInt(4) - 2 ],
-    ];
-
-    const createAsteroid = () => createEntity({
-        entityType: 'asteroid',
-        name: randomInt(1000),
-        shape: getAsteroidShape(),
-        x: 30 + Math.random() * (640 - 30),    // - scale * normal TODO const
-        y: 30 + Math.random() * (480 - 30),
-        velx: Math.random() * 50 - 25,
-        vely: Math.random() * 50 - 25,
-        scale: 5,
-        rotationVel: 0.001 * Math.random() + 0.001,
-    });
+    const player = store.dispatch(createEntity(createPlayer()));
 
     // This updates the physics
     store.dispatch(addTick(function* _update_physics(dt) {
@@ -95,6 +48,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     }));
 
+    // handle collision of asteroid with ship.
+    store.dispatch(addTick(function* _asteroidShip(dt) {
+        const player = store.getState().entities[0];
+        if (player.invuln) return;
+        const asteroid = Object.values(store.getState().entities)
+            .filter(e => e.entityType === 'asteroid')
+            .find(a => Math.abs(a.x - player.x) < 20 && Math.abs(a.y - player.y) < 20);
+        if (asteroid) {
+            yield put(removeEntity(() => asteroid));
+            yield put({ type: 'DEATH_INC' });
+            yield put({ type: 'STATUS', id: 0, invuln: true });
+            let cooldown = 2000;
+            yield put(addTick(function* _respawning(dt) {
+                return (cooldown -= dt) < 0;
+            }));
+            yield put({ type: 'STATUS', id: 0, invuln: false });
+        }
+    }));
+
     // This spawns asteroids, until there are 10 of them.
     {
         const MAX_ASTEROIDS = 10;
@@ -104,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (Object.values(store.getState().entities).filter(v => v.entityType === 'asteroid').length >= MAX_ASTEROIDS) return false;
             tillSpawn -= dt;
             if (tillSpawn < 0) {
-                yield put(createAsteroid());
+                yield put(createEntity(createAsteroid()));
                 tillSpawn += ASTEROID_CD;
             }
 
@@ -112,33 +84,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
     }
 
-    const getRadiansFromVector = (x, y) => 0.5 * Math.PI + Math.atan2(y || 0.1, x || 0.1);
-    document.addEventListener('mousemove', e => {
-        if (!store.getState().entities[0]) return;
-        const x = e.clientX - store.getState().entities[0].x;
-        const y = e.clientY - store.getState().entities[0].y;
-        const rotation = getRadiansFromVector(x, y);
-
-        store.dispatch({
-            type: 'FACE',
-            id: 0,
-            rotation,
-        });
-    });
-
-    let keysPressed = {};
-    let dispatchAddAcc = () => {
-        let accx = 0.001;
-        let accy = 0.001;
-        if (keysPressed[37] && !keysPressed[39]) accx = -700;
-        else if (!keysPressed[37] && keysPressed[39]) accx = 700;
-
-        if (keysPressed[38] && !keysPressed[40]) accy = -700;
-        else if (!keysPressed[38] && keysPressed[40]) accy = 700;
-
-        store.dispatch({ type: 'ADD_ACC', id: 0, accx, accy });
-    };
-    // First store the key change, then update ADD_ACC accordingly.
-    document.addEventListener('keydown', e => dispatchAddAcc(keysPressed[e.keyCode] = true));
-    document.addEventListener('keyup', e => dispatchAddAcc(keysPressed[e.keyCode] = false));
+    controls(store);
 });
