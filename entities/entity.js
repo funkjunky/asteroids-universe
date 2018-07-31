@@ -3,6 +3,9 @@ import ship from './ship';
 
 const reducers = { asteroid, ship };
 
+const MAX_WIDTH = 1280;
+const MAX_HEIGHT = 960;
+
 export default (state, action) => {
     switch(action.type) {
         case 'UPDATE_PHYSICS':
@@ -29,12 +32,12 @@ export default (state, action) => {
             }
 
             let x = state.velx * pps + state.x;
-            if (x < 0) x = 640 - x;
-            else if (x > 640) x = x - 640;
+            if (x < 0) x = MAX_WIDTH - x;
+            else if (x > MAX_WIDTH) x = x - MAX_WIDTH;
 
             let y = state.vely * pps + state.y;
-            if (y < 0) y = 480 - y;
-            else if (y > 480) y = y - 480;
+            if (y < 0) y = MAX_HEIGHT - y;
+            else if (y > MAX_HEIGHT) y = y - MAX_HEIGHT;
 
             const rotation = (state.rotationVel || 0) * action.dt + state.rotation;
 

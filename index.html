@@ -1,10 +1,25 @@
 <html>
     <head>
         <title>Redux yield effect tick game</title>
+        <link rel="manifest" href="/manifest.json">
+        <style>
+            body, html {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            canvas {
+                position: absolute;
+                background-color: black;
+                width: 100%;
+                height: 100%;
+            }
+        </style>
         <script src="./bundle.js"></script>
     </head>
     <body>
-        <canvas width="640" height="480" style="border: solid 1px #2dab9a; background-color: black;"></canvas>
-		<div id="logger" />
+        <canvas id="game" width="640" height="480"></canvas>
     </body>
 </html>

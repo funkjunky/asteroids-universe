@@ -49,11 +49,24 @@ export default (ctx, state, dt) => {
     //default colour
     ctx.fillStyle = c.darkGreen;
 
+    // centre translate on ship location and half of screen
+    ctx.save();
+    ctx.translate(320 - state.entities[0].x, 240 - state.entities[0].y);
+
+    // draw bounds
+    ctx.strokeStyle = c.darkGreen;
+    ctx.lineWidth = 5;
+    // TODO: max_height, max_width (in entities/entity.js)
+    ctx.strokeRect(0, 0, 1280, 960);
+
+
+    // draw entities
     Object.values(state.entities).reverse().forEach(entity => {
         ctx.save();
         drawEntity(entity)
         ctx.restore();
     });
+    ctx.restore();
 
     ctx.save();
     ctx.translate(640, 10);

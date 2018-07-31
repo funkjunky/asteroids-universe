@@ -13,6 +13,14 @@ import controls from './controls';
 import 'end-polyFills';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('game');
+    const onClick = () => {
+        canvas.webkitRequestFullscreen();
+        window.screen.orientation.lock('landscape');
+        canvas.removeEventListener('click', onClick);
+    };
+    canvas.addEventListener('click', onClick);
+
     const store = createStore(
         reducer,
         applyMiddleware(
@@ -23,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     store.dispatch(resumeTicks());
 
-    let canvas = document.querySelector('canvas');
     let ctx = canvas.getContext('2d');
     const step = dt => {
         graphics(ctx, store.getState(), dt);

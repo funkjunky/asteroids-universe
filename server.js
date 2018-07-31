@@ -5,10 +5,10 @@ var config = require('./webpack.config');
 new WebpackDevServer(webpack(config), {
     publicPath: config.output.publicPath,
     //historyApiFallback: true
-}).listen(8080, 'localhost', function (err, result) {
+}).listen(8080, '0.0.0.0', function (err, result) {
     if (err) {
         return console.log(err);
     }
 
-    console.log('Listening at http://localhost:'+8080+'/');
+    console.log('Listening at http://0.0.0.0:'+8080+'/');
 });
